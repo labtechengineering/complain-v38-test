@@ -2,7 +2,7 @@
 // Safe for a public GitHub Pages repository ONLY with the publishable key.
 // NEVER put the service_role key, database password, LINE token, or LINE secret here.
 window.QA_CONFIG = {
-  supabaseUrl: 'https://sxvcxkevgnmxaezabbgf.supabase.co/rest/v1/',
+  supabaseUrl: 'https://sxvcxkevgnmxaezabbgf.supabase.co',
   publishableKey: 'sb_publishable_F3w0tgohI_QI9pUb81I3mg_xxAMvhND',
   lineAddFriendUrl: 'https://lin.ee/WiIjIZp',
   imageBucket: 'qa-images',
