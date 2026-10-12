@@ -15,20 +15,43 @@
  .vn-checks{display:flex;flex-wrap:wrap;gap:9px}.vn-checks label{border:1px solid #dae1ea;display:flex;align-items:center;gap:7px;padding:8px 10px;border-radius:8px;font-weight:400}
  .vn-checks input{width:auto}.vn-card textarea{min-height:82px}.vn-btn{border:1px solid #bdcad6;border-radius:8px;padding:10px 13px;cursor:pointer;background:#f1f5f9}
  .vn-files{font-size:12px;color:#526276}.vn-note{font-size:13px;color:#5b6675}
+ .vn-source-buttons{display:flex;gap:12px;justify-content:center;margin:8px 0 20px;flex-wrap:wrap}
+ .vn-source-choice{min-width:180px;flex:0 1 290px;border:1px solid #6289ee;background:#fff;color:#1f2937;border-radius:8px;padding:12px 14px;cursor:pointer;font:inherit}
+ .vn-source-choice[aria-pressed="true"]{background:#eaf1ff;border-color:#275cdd;box-shadow:inset 0 0 0 1px #275cdd;font-weight:600}
+ .vn-main-meta{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+ .vn-main-meta label{display:flex;flex-direction:column;gap:5px}.vn-main-meta .vn-remark{grid-column:1/-1}
+ .vn-main-meta textarea{min-height:72px}
+ @media(max-width:650px){.vn-main-meta{grid-template-columns:1fr}.vn-source-choice{min-width:125px;flex:1}}
  `;document.head.append(style);
  function create(){return {id:++seq,images:[],video:[],category:'',description:'',departments:[]};}
  problems.push(create());
  const oldProblem=$('problemDetail')?.closest('.card');if(!oldProblem)return;
  const panel=document.createElement('section');panel.className='card';panel.id='vnPanel';
- panel.innerHTML=`<div class="section-title">2. ปัญหาและฝ่ายรับเรื่อง</div><p class="vn-note">เพิ่มได้หลายปัญหา เลือกหลายฝ่ายต่อปัญหา และใช้เลขงานร่วมกัน</p>
- <div id="vnHeader" class="vn-row"><label>ประเภทงาน<select id="vnSource"><option value="PRODUCTION">Production</option><option value="AFTERSALES">Aftersales</option></select></label><label>Customer Name<input id="vnCustomer" maxlength="200"></label><label>Country<input id="vnCountry" maxlength="120"></label></div>
- <label>Remark<textarea id="vnRemark" maxlength="20000" placeholder="หมายเหตุ (ถ้ามี)"></textarea></label>
+ panel.innerHTML=`<div class="section-title">2. รายละเอียดงาน / ปัญหาที่พบ</div>
  <div id="vnProblems"></div><button type="button" class="vn-btn" id="vnAdd">+ เพิ่มปัญหา</button>
  <p id="vnStatus" role="status" aria-live="polite"></p>`;
  oldProblem.before(panel);oldProblem.style.display='none';$('toDepartment').closest('.field').style.display='none';$('toDepartment').required=false;
+ // Put shared job fields inside section 1; issue-specific fields remain in section 2.
+ const mainCard=$('serialNo').closest('.card');
+ const mainGrid=mainCard.querySelector('.grid');
+ const sourceWrap=document.createElement('div');
+ sourceWrap.innerHTML=`<div class="vn-source-buttons" role="group" aria-label="ประเภทงาน">
+ <button type="button" class="vn-source-choice" data-source="PRODUCTION" aria-pressed="true">Production</button>
+ <button type="button" class="vn-source-choice" data-source="AFTERSALES" aria-pressed="false">Aftersales</button></div>
+ <select id="vnSource" hidden aria-label="ประเภทงาน"><option value="PRODUCTION">Production</option><option value="AFTERSALES">Aftersales</option></select>`;
+ mainCard.insertBefore(sourceWrap,mainGrid);
+ sourceWrap.querySelectorAll('[data-source]').forEach(button=>button.addEventListener('click',()=>{
+   $('vnSource').value=button.dataset.source;
+   sourceWrap.querySelectorAll('[data-source]').forEach(b=>b.setAttribute('aria-pressed',String(b===button)));
+ }));
+ const meta=document.createElement('div');meta.className='vn-main-meta';
+ meta.innerHTML=`<label>Customer Name<input id="vnCustomer" maxlength="200"></label>
+ <label>Country<input id="vnCountry" maxlength="120"></label>
+ <label class="vn-remark">Remark<textarea id="vnRemark" maxlength="20000"></textarea></label>`;
+ mainGrid.after(meta);
  $('category').required=false;$('problemDetail').required=false;
  const oldImages=$('imageInput').closest('.card');oldImages.style.display='none';
- const baseSubmit=$('submitBtn');baseSubmit.textContent='แจ้งงาน (หลายฝ่ายรับเรื่อง)';
+ const baseSubmit=$('submitBtn');baseSubmit.textContent='แจ้งงาน';
  function save(){for(const el of $('vnProblems').querySelectorAll('[data-issue]')){const i=problems.find(p=>p.id===+el.dataset.issue);if(!i)continue;i.category=el.querySelector('.vn-category').value;i.description=el.querySelector('.vn-detail').value;i.departments=[...el.querySelectorAll('.vn-dept:checked')].map(c=>c.value);}}
  function render(){const host=$('vnProblems');host.replaceChildren();problems.forEach((p,i)=>{
   const box=document.createElement('article');box.className='vn-card';box.dataset.issue=p.id;
