@@ -124,7 +124,7 @@
     REQUESTER_ADMIN_REQUIRED: 'เฉพาะ Department Admin ฝั่งผู้แจ้งหรือ System Admin เท่านั้นที่ตรวจรับ/ปิดงานนี้ได้',
     ASSIGNED_DEPARTMENT_ROLE_REQUIRED: 'Only the assigned department or admin can accept/edit this job.',
     JOB_NOT_FOUND_OR_FORBIDDEN: 'Job not found, or your account cannot access it.',
-    INVALID_OR_INACTIVE_SETTINGS: 'Select active department, category and priority values from Settings.',
+    INVALID_OR_INACTIVE_SETTINGS: 'กรุณาตรวจสอบว่าแผนกผู้แจ้ง ฝ่ายรับเรื่อง และประเภทปัญหาเปิดใช้งานใน Settings',
     UNRESOLVED_REQUEST: 'A previous save has an unknown outcome. Click Recover pending save before making another change.',
     ANNOTATION_PERMISSION_REQUIRED: 'บัญชีนี้ไม่มีสิทธิ์แก้ไขรูปในสถานะปัจจุบัน',
     CANNOT_DISABLE_OWN_ADMIN: 'ไม่สามารถปิดสิทธิ์ System Admin ของบัญชีที่กำลังใช้งานอยู่ได้',

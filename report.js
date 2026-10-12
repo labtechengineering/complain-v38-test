@@ -114,10 +114,8 @@ function buildJobPdfHtml_(job, documentType, isFinal) {
           ]
         },
         {
-          type: 'four',
+          type: 'two',
           values: [
-            'Priority',
-            job.priority,
             'Serial No.',
             job.serialNo
           ]
