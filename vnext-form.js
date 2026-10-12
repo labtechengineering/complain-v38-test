@@ -32,6 +32,13 @@
  <p id="vnStatus" role="status" aria-live="polite"></p>`;
  oldProblem.before(panel);oldProblem.style.display='none';$('toDepartment').closest('.field').style.display='none';$('toDepartment').required=false;
  // Put shared job fields inside section 1; issue-specific fields remain in section 2.
+ // Hide the two read-only identity fields only in the new request form.
+ // supabase-api.js / QA.applyPermissions() still fills these inputs from the logged-in profile.
+ // Do not remove inputs or change their IDs, so legacy validation, PDF and metadata remain intact.
+ for(const fieldId of ['issuerName','fromDepartment']){
+   const input=$(fieldId);
+   if(input){const field=input.closest('.field');if(field)field.style.display='none';}
+ }
  const mainCard=$('serialNo').closest('.card');
  const mainGrid=mainCard.querySelector('.grid');
  const sourceWrap=document.createElement('div');
