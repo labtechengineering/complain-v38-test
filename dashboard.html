@@ -10,7 +10,7 @@
  #allJobFilters .job-filter-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
  #activeJobFilters{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:0 0 8px}
  #activeJobFilters button{padding:3px 8px;font-size:12px;border-radius:20px}
- .dashboard-compact .charts{--qa-dashboard-chart-height:250px}
+ .dashboard-compact .charts{--qa-dashboard-chart-height:clamp(270px,35.5vh,375px)}
  .dashboard-compact .charts>.panel{height:var(--qa-dashboard-chart-height);min-height:0;min-width:0;display:flex;flex-direction:column}
  .dashboard-compact .charts .bargraph{flex:1;min-height:0;height:auto!important}
  .dashboard-compact .charts .legend{flex:none}
@@ -25,6 +25,31 @@
  #issueSummary>summary{width:max-content;max-width:100%;padding:3px 5px;list-style-position:inside;font-size:13px;font-weight:600!important;color:inherit}
  #issueSummary[open]{padding:7px 10px 10px;border:1px solid #e2e8f0;background:#fff;color:#24354b}
  #issueSummary[open] .qa-issue-ring{--qa-issue-surface:#fff}
+ @media(min-width:801px){
+  html:not([data-dashboard-view="all"]) body.dashboard-compact .main{
+   max-width:none;
+   padding-inline:clamp(16px,1.5vw,36px)!important;
+  }
+ }
+ @media(min-width:1250px){
+  html body.dashboard-compact .charts .donut-layout{
+   --qa-status-donut-size:clamp(164px,calc(var(--qa-dashboard-chart-height) - 105px),216px);
+  }
+  html body.dashboard-compact .charts .donut-wrap{flex-basis:var(--qa-status-donut-size)}
+  html body.dashboard-compact .charts .donut{
+   width:var(--qa-status-donut-size);height:var(--qa-status-donut-size);
+  }
+ }
+ @media(max-width:1000px){
+  html body.dashboard-compact .charts{
+   --qa-dashboard-chart-height:270px;
+   grid-template-columns:minmax(0,1fr);
+  }
+ }
+ @media(max-width:600px){
+  html body.dashboard-compact .charts .plot{padding-inline:clamp(5px,2vw,12px)}
+  html body.dashboard-compact .charts .bar-item{min-width:32px}
+ }
  @media(max-width:480px){
   #allJobFilters .job-filter{flex:1 1 130px}
   #allJobFilters .job-filter :is(select,input){width:100%}
@@ -49,6 +74,14 @@
   column-gap:12px;
 }
 .listpanel .list-columns>span,.listpanel .job-row>span{min-width:0;}
+@media(max-width:1450px){
+ .listpanel .list-table{min-width:980px;}
+ .listpanel .list-table:has(.trash-row){min-width:1044px;}
+ .listpanel .list-columns,.listpanel .job-row{
+  grid-template-columns:42px minmax(135px,1.25fr) 42px minmax(80px,.8fr) minmax(104px,1fr) minmax(85px,.85fr) minmax(145px,2fr) minmax(100px,1fr) minmax(124px,1fr)!important;
+  column-gap:8px;
+ }
+}
 .listpanel .job-row>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .listpanel .job-row>.job-status-cell{overflow:visible;white-space:normal;}
 .listpanel .severity-column{text-align:center;}
@@ -106,4 +139,4 @@
  <table><thead><tr><th scope="col">ระดับ</th><th scope="col">ความรุนแรง</th><th scope="col">การจัดการ</th><th scope="col">กำหนดเวลา</th></tr></thead><tbody></tbody></table>
  <form method="dialog"><button class="secondary">ปิด</button></form>
 </dialog>
-</main><script src="feature-script.js?v=performance-20261125-r15" defer></script><script src="issue-classification.js?v=r16" defer></script><script src="v41-dashboard.js?v=r16-severity-column" defer></script><script src="admin-job-trash.js?v=followup-20261107" defer></script></body></html>
+</main><script src="feature-script.js?v=performance-20261125-r15" defer></script><script src="issue-classification.js?v=r16" defer></script><script src="v41-dashboard.js?v=r16-dashboard-balance" defer></script><script src="admin-job-trash.js?v=followup-20261107" defer></script></body></html>
