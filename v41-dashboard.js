@@ -273,6 +273,12 @@ function initIssueSummary(){
  });
 }
 
+function renderSeverity(code){
+ const level=String(code??'').trim().toUpperCase();
+ if(!/^S[1-4]$/.test(level))return '<span aria-label="ยังไม่ได้ระบุระดับความรุนแรง">—</span>';
+ return classification?.badge(level)||'<span class="qa-severity '+level+'">'+level+'</span>';
+}
+
 function renderRows(){
  const entries=base.flatMap(issueRowsFor);
  const filtered=entries.filter(entry=>rowMatchesChart(entry)&&(!allJobsMode||
@@ -307,7 +313,7 @@ function renderRows(){
    const type=n.code.startsWith('unrelated')?'unrelated':n.code.startsWith('rework')?'rework':n.code.startsWith('head')?'head':n.code;
    return '<span class="workflow-notice '+(n.action?'action-required':'informative')+'" data-notice="'+safe(n.code)+'"><svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'+(noticePaths[type]||noticePaths.work)+'</svg>'+safe(n.text)+'</span>';
   }).join('');
-  return `<a class="job-row" href="${safe(url)}" title="เปิดปัญหา ${safe(issueCode)}"><span class="read-column">${allJobsMode&&!workflowAssignments.length?'—':readMarker(j,i)}</span><span title="${safe(issueCode)}"><b>${safe(issueCode)}</b></span><span title="${safe(j.customerName)}">${safe(j.customerName||'ไม่ระบุ')}</span><span title="${safe(j.serialNo)}">${safe(j.serialNo||'—')}</span><span class="route" title="${safe(route)}">${safe(route)}</span><span class="qa-problem-list-text" title="${safe(problem)}"><span>${safe(problem)}</span>${classification?.badge(i.severity_code,true)||''}</span><span><i class="pill ${safe(st)}">${safe(status)}</i>${notices}</span><span title="${safe(time)}">${safe(time)}</span></a>`;
+  return `<a class="job-row" href="${safe(url)}" title="เปิดปัญหา ${safe(issueCode)}"><span class="read-column">${allJobsMode&&!workflowAssignments.length?'—':readMarker(j,i)}</span><span title="${safe(issueCode)}"><b>${safe(issueCode)}</b></span><span class="severity-column">${renderSeverity(i.severity_code)}</span><span title="${safe(j.customerName)}">${safe(j.customerName||'ไม่ระบุ')}</span><span title="${safe(j.serialNo)}">${safe(j.serialNo||'—')}</span><span class="route" title="${safe(route)}">${safe(route)}</span><span title="${safe(problem)}">${safe(problem)}</span><span class="job-status-cell"><i class="pill ${safe(st)}">${safe(status)}</i>${notices}</span><span title="${safe(time)}">${safe(time)}</span></a>`;
  }).join(''):'<div class="empty">ไม่พบรายการปัญหา</div>';
  $('pagination').hidden=!allJobsMode||filtered.length<=pageSize;$('prevPage').disabled=page===0;$('nextPage').disabled=page>=pageCount-1;$('pageInfo').textContent=`หน้า ${page+1} / ${pageCount}`;
  if(allJobsMode)queueCatalogMetadata(show);
