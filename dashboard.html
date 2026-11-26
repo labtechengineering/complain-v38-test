@@ -1,7 +1,96 @@
-<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="qa-page" content="dashboard"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Dashboard · Complain</title>
-<script src="config.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-api.js?v=38.0.0"></script><script src="navigation.js?v=38.0.0"></script>
-<style>*{box-sizing:border-box}body{margin:0;background:#f5f7fb;color:#192534;font:15px Arial,Tahoma,sans-serif}.main{max-width:1210px;padding:24px 18px 55px;margin:auto}header{display:flex;flex-wrap:wrap;justify-content:space-between;gap:12px;align-items:center}h1{margin:0 0 5px;font-size:26px}.muted,#feedback{color:#627083;font-size:13px}.controls{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:18px 0}select,input,button{border:1px solid #cbd5e1;padding:10px 12px;border-radius:9px;font:inherit;background:white}button{cursor:pointer;background:#19283d;color:white}button:hover{opacity:.91}.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:15px 0}.card,.chart{background:#fff;border:1px solid #e1e8ef;border-radius:13px;padding:17px}.number{font-size:32px;font-weight:800;margin-top:10px}.chart{margin-top:14px;overflow:hidden}.key{display:flex;gap:15px;flex-wrap:wrap;margin:15px 0 22px}.key span{display:flex;align-items:center;gap:6px;font-size:13px}.dot{width:12px;height:12px;display:inline-block;border-radius:2px}.graph{display:flex;gap:8px;min-height:355px}.axis{width:30px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-end;height:280px;font-size:12px;color:#64748b;flex-shrink:0}.plot{display:flex;align-items:flex-end;justify-content:space-around;gap:14px;min-height:330px;flex:1;overflow-x:auto;border-bottom:1px solid #d6dee8}.item{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;flex:1;min-width:85px;max-width:165px;height:330px}.columns{width:min(75%,82px);display:flex;flex-direction:column-reverse;overflow:hidden;min-height:0}.segment{min-height:0;display:flex;justify-content:center;align-items:center;color:white;font-weight:800;font-size:13px}.total{font-weight:800;margin-bottom:7px}.dept{font-weight:700;font-size:12px;margin-top:10px;text-align:center;min-height:37px;overflow-wrap:anywhere}@media(max-width:740px){.cards{grid-template-columns:repeat(2,1fr)}.main{padding:14px 10px}.number{font-size:26px}.item{min-width:67px}.chart{padding:12px}}</style></head>
-<body class="qa-auth-loading"><main class="main"><header><div><h1>Dashboard</h1><div class="muted">สรุปงานตามฝ่ายรับเรื่อง (หนึ่งเลขงานต่อหนึ่งฝ่าย = หนึ่งงาน)</div></div><button id="download">⬇ Download Dashboard (PNG)</button></header>
-<div class="controls"><label for="filter">ช่วงเวลา</label><select id="filter"><option value="all">ทั้งหมด</option><option value="day">รายวัน</option><option value="week">รายสัปดาห์</option><option value="month">รายเดือน</option><option value="year">รายปี</option></select><input id="day" type="date" hidden><input id="week" type="week" hidden><input id="month" type="month" hidden><input id="year" type="number" min="2020" max="2100" hidden><button id="refresh">แสดงข้อมูล</button></div><p id="period" class="muted"></p>
-<div class="cards"><section class="card"><div>งานทั้งหมด</div><div id="nTotal" class="number">—</div></section><section class="card"><div>กำลังดำเนินงาน</div><div id="nProgress" class="number">—</div></section><section class="card"><div>รอตรวจสอบ</div><div id="nReview" class="number">—</div></section><section class="card"><div>สำเร็จ</div><div id="nDone" class="number">—</div></section></div>
-<section class="chart"><h2>จำนวนงานแยกตามฝ่ายรับเรื่อง</h2><div class="key"><span><i class="dot" style="background:#F59E0B"></i>กำลังดำเนินงาน</span><span><i class="dot" style="background:#3B82F6"></i>รอตรวจสอบ</span><span><i class="dot" style="background:#16A34A"></i>สำเร็จ</span></div><div class="graph"><div id="axis" class="axis"></div><div id="plot" class="plot"></div></div></section><p id="feedback" role="status"></p></main><script src="vnext-dashboard.js?v=38.0.0" defer></script></body></html>
+<!doctype html><html lang="th"><head><meta charset="utf-8"><meta name="qa-page" content="dashboard"><meta name="viewport" content="width=device-width,initial-scale=1"><script>if(new URLSearchParams(location.search).get('view')==='all')document.documentElement.dataset.dashboardView='all';</script><style>
+ #viewAll{display:inline-flex;align-items:center;padding:8px 12px;text-decoration:none}
+ #backDashboard,#allJobFilters[hidden]{display:none!important}
+ html[data-dashboard-view="all"] :is(.charts,.cards,#viewAll,#issueSummary){display:none!important}
+ html[data-dashboard-view="all"] #backDashboard{display:inline-block!important;margin-bottom:8px;color:#255e8b;text-decoration:underline}
+ #allJobFilters.controls{display:flex;justify-content:flex-start;align-items:flex-end;gap:8px}
+ #allJobFilters [hidden],#activeJobFilters[hidden]{display:none!important}
+ #allJobFilters .job-filter{display:grid;gap:3px;margin:0;min-width:0;font-size:13px;line-height:1.4}
+ #allJobFilters .job-filter :is(select,input){max-width:100%;width:180px;min-width:0}
+ #allJobFilters .job-filter-actions{display:flex;align-items:center;gap:6px;flex-wrap:wrap}
+ #activeJobFilters{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin:0 0 8px}
+ #activeJobFilters button{padding:3px 8px;font-size:12px;border-radius:20px}
+ .dashboard-compact .charts{--qa-dashboard-chart-height:250px}
+ .dashboard-compact .charts>.panel{height:var(--qa-dashboard-chart-height);min-height:0;min-width:0;display:flex;flex-direction:column}
+ .dashboard-compact .charts .bargraph{flex:1;min-height:0;height:auto!important}
+ .dashboard-compact .charts .legend{flex:none}
+ .dashboard-compact .charts .donutpanel .donut-layout{flex:1;min-height:0!important;margin-top:0;flex-wrap:nowrap}
+ .dashboard-compact .charts :is(.bar-total,.bar-label){flex-shrink:0}
+ .dashboard-compact .bar-rail{min-height:0;width:100%;flex:1;display:flex;justify-content:center;align-items:flex-end;margin-top:22px}
+ .dashboard-compact .bar-fill{position:relative;width:clamp(24px,48%,49px)}
+ .dashboard-compact .bar-fill .bar-stack{width:100%;max-width:none;height:100%}
+ .dashboard-compact .bar-fill .bar-total{position:absolute;inset-inline-start:50%;bottom:100%;transform:translateX(-50%);height:20px;line-height:20px;padding:0;z-index:1}
+ .dashboard-compact .bar-rail .bar-segment{min-height:0}
+ #issueSummary{margin:7px 0 0;padding:0;border:0;background:transparent}
+ #issueSummary>summary{width:max-content;max-width:100%;padding:3px 5px;list-style-position:inside;font-size:13px;font-weight:600!important;color:inherit}
+ #issueSummary[open]{padding:7px 10px 10px;border:1px solid #e2e8f0;background:#fff;color:#24354b}
+ #issueSummary[open] .qa-issue-ring{--qa-issue-surface:#fff}
+ @media(max-width:480px){
+  #allJobFilters .job-filter{flex:1 1 130px}
+  #allJobFilters .job-filter :is(select,input){width:100%}
+ }
+ @media(max-width:400px){
+  .dashboard-compact .charts .donut-wrap{flex:0 0 100px;min-width:0}
+  .dashboard-compact .charts .donut{width:100px;height:100px}
+  .dashboard-compact .charts .donut-center{width:66%;height:66%}
+ }
+ </style><title>Dashboard · Complain &amp; Action Tracking</title>
+<script src="app-release.js?v=chart-no-scale-20261110-r1" ></script><script src="config.js?v=release-20261026-v3"></script><script src="workflow-rules.js?v=admin-receive-20261112-r3"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="supabase-api.js?v=web-push-20261124-r11"></script><script src="job-status.js?v=release-20261026-v3"></script><script src="issue-read-state.js?v=release-20261026-v3"></script><script src="workflow-navigation.js?v=request-due-20261118-r6"></script><script src="navigation.js?v=admin-receive-20261112-r3"></script>
+<link rel="stylesheet" href="v40.css?v=release-20261026-v3"><style>.pill.OPEN{background:#fef3c7;color:#92400e}.pill.CANCELLED{background:#e2e8f0;color:#475569}.pill.UNKNOWN{background:#f1f5f9;color:#64748b}.pill.MIXED{background:#e2e8f0;color:#334155}.head-approval-flag{display:inline-block;margin:4px 0 0 8px;padding:3px 8px;border-radius:999px;background:#fff0c2;color:#8a4b00;font-size:12px;font-weight:700;white-space:nowrap;border:1px solid #eecb73}
+/* V50.3: Dashboard latest-issues table only. */
+.listpanel .list-scroll{overflow-x:auto;}
+.listpanel .list-table{min-width:1100px;width:100%;}
+.listpanel .list-columns,.listpanel .job-row{
+  display:grid!important;
+  grid-template-columns:48px minmax(175px,1.55fr) minmax(105px,0.9fr) minmax(130px,1.2fr) minmax(98px,0.9fr) minmax(195px,2.3fr) minmax(142px,1.35fr) minmax(142px,1.2fr)!important;
+  align-items:center;
+  column-gap:12px;
+}
+.listpanel .list-columns>span,.listpanel .job-row>span{min-width:0;}
+.listpanel .job-row>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.listpanel .job-row>span:nth-child(6){overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.listpanel .job-row>span:nth-child(7){overflow:visible;white-space:normal;}
+.listpanel .job-row>span:last-child{white-space:nowrap;font-variant-numeric:tabular-nums;}
+.listpanel .head-approval-flag{display:inline-flex;align-items:center;margin:4px 0 0 0;padding:3px 7px;font-size:11px;line-height:1.2;max-width:100%;white-space:nowrap;}
+.listpanel .head-approval-flag{display:block!important;background:none!important;border:0!important;box-shadow:none!important;border-radius:0!important;padding:0!important;margin:5px 0 0!important;color:#dc2626!important;font-size:12px!important;font-weight:400!important;white-space:nowrap!important}
+.listpanel .read-column{display:flex;align-items:center;justify-content:center;font-size:11px}
+.read-state{display:inline-flex;align-items:center;justify-content:center;width:30px;height:30px;border-radius:8px;flex-shrink:0}
+.read-state.unread{background:#e9f0f8;color:#375b81}.read-state.read{color:#8a98a9}.read-state.unknown{color:#94a3b8}
+.workflow-notice{display:flex;align-items:flex-start;gap:5px;margin-top:5px;font-size:12px;line-height:1.4;white-space:normal}.workflow-notice svg{flex-shrink:0;margin-top:1px}.workflow-notice.action-required{color:#b42318}.workflow-notice.informative{color:#64748b}</style><style>.listhead .list-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.list-actions #exportExcel{background:#193b60;color:#fff;border:1px solid #193b60;font-weight:600}.list-actions #exportExcel:disabled{opacity:.6;cursor:wait}.list-actions #exportExcel[hidden]{display:none!important}#excelExportStatus:empty{display:none}#excelExportStatus{margin:8px 0;font-size:13px;overflow-wrap:anywhere}</style><link rel="manifest" href="web-push.webmanifest"><link rel="apple-touch-icon" href="web-push-icon-192.png"><link rel="stylesheet" href="issue-classification.css?v=r16"></head><body class="qa-auth-loading dashboard-compact"><main class="main">
+<header><a id="backDashboard" href="dashboard.html?from=all-jobs">← กลับหน้าหลัก</a><h1>Complaint &amp; Action Request Dashboard</h1><p id="welcome" class="welcome">สวัสดีผู้ใช้งาน</p></header>
+<div id="allJobFilters" class="controls" role="group" aria-label="ตัวกรองงานทั้งหมด" tabindex="0" hidden>
+ <label class="job-filter"><span>หัวข้อการค้นหา</span>
+  <select id="filterTopic">
+   <option value="search">คำค้น</option><option value="scope">ขอบเขตงาน</option><option value="department">แผนกรับเรื่อง</option><option value="status">สถานะ</option><option value="category">ประเภทปัญหา</option><option value="severity">ความรุนแรง</option><option value="occurrence">ปัญหาเก่า / ใหม่</option><option value="period">ช่วงเวลา</option>
+  </select>
+ </label>
+ <label class="job-filter" data-filter-field="scope" hidden><span>เรื่องที่ค้นหา</span><select id="dashScope"><option value="all">ทุกแผนก</option></select></label>
+ <label class="job-filter" data-filter-field="department" hidden><span>เรื่องที่ค้นหา</span><select id="departmentFilter"><option value="">ทุกแผนก</option></select></label>
+ <label class="job-filter" data-filter-field="status" hidden><span>เรื่องที่ค้นหา</span><select id="allJobsStatus"><option value="all">ทุกสถานะ</option><option value="IN_PROGRESS">กำลังดำเนินงาน</option><option value="WAITING_REVIEW">รอตรวจสอบ</option><option value="CLOSED">สำเร็จ</option><option value="CANCELLED">ยกเลิก</option></select></label>
+ <label class="job-filter" data-filter-field="category" hidden><span>เรื่องที่ค้นหา</span><select id="categoryFilter"><option value="">ทุกประเภท</option></select></label>
+ <label class="job-filter" data-filter-field="severity" hidden><span>เรื่องที่ค้นหา</span><select id="severityFilter"><option value="">ทุกระดับ</option></select></label>
+ <label class="job-filter" data-filter-field="occurrence" hidden><span>เรื่องที่ค้นหา</span><select id="occurrenceFilter"><option value="">ทั้งสองแบบ</option></select></label>
+ <label class="job-filter" data-filter-field="period" hidden><span>เรื่องที่ค้นหา</span><select id="filter"><option value="all">ทั้งหมด</option><option value="day">รายวัน</option><option value="week">รายสัปดาห์</option><option value="month">รายเดือน</option><option value="year">รายปี</option></select></label>
+ <input id="day" type="date" aria-label="วันที่แจ้ง" hidden><input id="week" type="week" aria-label="สัปดาห์ที่แจ้ง" hidden><input id="month" type="month" aria-label="เดือนที่แจ้ง" hidden><input id="year" type="number" min="2020" max="2100" aria-label="ปีที่แจ้ง" hidden>
+ <label class="job-filter" data-filter-field="search" hidden><span>เรื่องที่ค้นหา</span><input id="dashSearch" type="search" placeholder="พิมพ์คำค้น"></label>
+ <div class="job-filter-actions"><button id="showSeverityGuide" hidden type="button" class="legend-action qa-severity-guide" aria-haspopup="dialog">เกณฑ์ S1–S4</button>
+ <button id="clearAllJobFilters" type="button" class="secondary">ล้างตัวกรอง</button>
+ <button id="refresh" type="button">แสดงข้อมูล</button></div>
+</div>
+<div id="activeJobFilters" aria-label="ตัวกรองที่ใช้อยู่" hidden></div>
+<div class="cards"><button class="stat active" data-status="all"><span>ปัญหาทั้งหมด</span><strong id="nTotal">—</strong></button><button class="stat" data-status="IN_PROGRESS"><span>กำลังดำเนินการ</span><strong id="nProgress">—</strong></button><button class="stat" data-status="WAITING_REVIEW"><span>รอตรวจสอบ</span><strong id="nReview">—</strong></button><button class="stat" data-status="CLOSED"><span>สำเร็จ</span><strong id="nDone">—</strong></button></div>
+<div class="charts"><section class="panel barpanel"><h2>จำนวนงาน</h2><div id="barLegend" class="legend"></div><div class="bargraph"><div id="axis" class="axis"></div><div id="plot" class="plot"></div></div></section><section class="panel donutpanel"><h2>สถานะงาน</h2><div class="donut-layout"><div class="donut-wrap"><div id="donut" class="donut"><div class="donut-center"><strong id="donutTotal">0</strong><span class="donut-title">สถานะงาน</span><small>งาน</small></div></div></div><div id="donutLegend" class="donut-legend"></div></div></section></div>
+<details id="issueSummary" class="qa-issue-summary">
+ <summary>สรุปปัญหา</summary>
+ <div class="qa-issue-charts">
+  <section class="qa-issue-chart qa-category-chart"><h3>ประเภทปัญหาตามแผนก</h3><div id="issueCategoryChart"></div><div id="issueCategoryKey" class="qa-category-key"></div></section>
+  <section class="qa-issue-chart"><h3>ระดับความรุนแรง</h3><div id="issueSeverityRing" class="qa-issue-ring"></div><div id="issueSeverityKey" class="qa-issue-ring-key"></div></section>
+  <section class="qa-issue-chart"><h3>ปัญหาเก่า / ใหม่</h3><div id="issueOccurrenceRing" class="qa-issue-ring"></div><div id="issueOccurrenceKey" class="qa-issue-ring-key"></div></section>
+ </div>
+</details>
+
+<section class="panel listpanel"><div class="listhead"><div><h2 id="listTitle">ปัญหาแจ้งล่าสุด</h2></div><div class="list-actions"><button id="exportExcel" class="excel-download" type="button" hidden disabled title="ดาวน์โหลดทุกช่วงเวลา ตามสิทธิ์ของคุณ">ดาวน์โหลด Excel</button><a id="viewAll" class="secondary" href="dashboard.html?view=all">ดูงานทั้งหมด</a></div></div><div class="list-scroll"><div class="list-table"><div class="list-columns"><span class="read-column" title="สถานะการเปิดดูของคุณ">การอ่าน</span><span>เลขที่ปัญหา</span><span>ชื่อลูกค้า</span><span>เครื่อง / Serial</span><span>จาก → ถึงแผนก</span><span>ปัญหา</span><span>สถานะ</span><span>วันที่แจ้ง</span></div><div id="jobRows"></div></div></div><div class="pagination" id="pagination" hidden><button id="prevPage" type="button" class="secondary">← ก่อนหน้า</button><span id="pageInfo"></span><button id="nextPage" type="button" class="secondary">ถัดไป →</button></div></section><p role="status" aria-live="polite" id="excelExportStatus" class="muted"></p><p role="status" id="feedback" class="muted"></p><dialog id="severityGuide" class="qa-issue-dialog" aria-label="เกณฑ์ระดับความรุนแรง"><b>เกณฑ์ระดับความรุนแรง</b>
+ <table><thead><tr><th scope="col">ระดับ</th><th scope="col">ความรุนแรง</th><th scope="col">การจัดการ</th><th scope="col">กำหนดเวลา</th></tr></thead><tbody></tbody></table>
+ <form method="dialog"><button class="secondary">ปิด</button></form>
+</dialog>
+</main><script src="feature-script.js?v=performance-20261125-r15" defer></script><script src="issue-classification.js?v=r16" defer></script><script src="v41-dashboard.js?v=r16-simple-rework" defer></script><script src="admin-job-trash.js?v=followup-20261107" defer></script></body></html>
