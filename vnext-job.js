@@ -691,13 +691,17 @@ function organizeDetailPanels(issueSheet,issueHost,openDepartments=[],reasons=ne
  let activeIssue=null;const folds=[];
  for(const {issue:i,assignments:related} of [...issues.values()].sort((a,b)=>Number(a.issue.issue_number)-Number(b.issue.issue_number))){
   const fold=document.createElement('details');fold.className='issue-disclosure'+(compactAdmin?' admin-compact-issue':'');fold.dataset.issueId=String(i.issue_id);fold.dataset.assignmentIds=related.map(a=>String(a.assignment_id)).join(',');
-  fold.innerHTML='<summary aria-label="ปัญหา '+esc(i.issue_number)+': '+esc(i.description)+'"><span class="issue-row-number">'+esc(i.issue_number)+'.</span><span class="issue-row-description" title="'+esc(i.description)+'">'+esc(categoryName(i.category_code,i.category_other||''))+(window.QAIssueClassification?.badge(i.severity_code)||'')+'</span><span class="issue-row-departments">'+related.map(a=>'<span class="issue-department-state" data-filter-assignment="'+esc(a.assignment_id)+'"><span class="issue-responsible-department">'+esc(assignmentName(a))+'</span>'+badge(a)+'</span>').join('')+'</span><span class="issue-row-chevron" aria-hidden="true"></span></summary>';
+  const classification=window.QAIssueClassification;
+  const level=String(i.severity_code??'').trim().toUpperCase();
+  const severityCode=/^S[1-4]$/.test(level)?level:'';
+  const severityBadge=severityCode?(classification?.badge(severityCode)||'<span class="qa-severity '+severityCode+'">'+severityCode+'</span>'):'';
+  const issueLabel='ปัญหา '+i.issue_number+': '+i.description+(severityCode?' · ระดับความรุนแรง '+severityCode:'');
+  fold.innerHTML='<summary aria-label="'+esc(issueLabel)+'"><span class="issue-row-number">'+esc(i.issue_number)+'.</span><span class="issue-row-description"><span class="issue-row-name" title="'+esc(i.description)+'">'+esc(categoryName(i.category_code,i.category_other||''))+'</span>'+severityBadge+'</span><span class="issue-row-departments">'+related.map(a=>'<span class="issue-department-state" data-filter-assignment="'+esc(a.assignment_id)+'"><span class="issue-responsible-department">'+esc(assignmentName(a))+'</span>'+badge(a)+'</span>').join('')+'</span><span class="issue-row-chevron" aria-hidden="true"></span></summary>';
   // A deadline is shared by all receiving departments for this issue only.
   const requesterDue=i.request_due_date||detail.request_due_date;
   const deadlineMarkup=requesterDue?'<p class="issue-request-due"><b>วันกำหนดเสร็จ:</b> <time datetime="'+esc(requesterDue)+'">'+esc(formatRequestDate(requesterDue))+'</time></p>':'';
   const body=document.createElement('div');body.className='issue-disclosure-body';body.innerHTML=deadlineMarkup+'<div class="issue-source-before-work"></div><div class="admin-department-list"></div><h3 class="issue-operations-title" hidden></h3><div class="issue-operation-host" hidden></div>';fold.append(body);
-  const classification=window.QAIssueClassification;
-  const severity=classification?.levels[i.severity_code];
+  const severity=classification?.levels[severityCode];
   const occurrence=classification?.occurrences[i.occurrence_type];
   if(severity||occurrence){
    const facts=document.createElement('p');facts.className='qa-issue-detail-classification';

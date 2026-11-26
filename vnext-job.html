@@ -67,6 +67,19 @@
 @media(max-width:680px){.issue-list-columns{padding:10px}.issue-list-columns>span:last-child{padding-right:20px}.issue-disclosure>summary{padding:13px 10px;gap:7px}.issue-row-number{flex-basis:15px}.issue-row-description{font-size:13px}.issue-row-departments{max-width:56%;gap:5px}.issue-department-state{gap:4px}.issue-responsible-department,.issue-status{font-size:10px}.issue-status{padding:3px 6px}.issue-disclosure-body{padding:12px}.issue-operation-group{padding:12px}}
 @media print{.issue-disclosure::details-content,.received-issues::details-content,.prior-round-disclosure::details-content,#jobHistory details::details-content{content-visibility:visible;display:block}.issue-row-description{white-space:normal;overflow:visible}.issue-row-chevron{display:none}}
 
+.issue-disclosure>summary .issue-row-description{display:flex;align-items:center;gap:6px;}
+.issue-row-name{min-width:0;overflow:hidden;text-overflow:ellipsis;}
+.issue-disclosure>summary .qa-severity{
+ display:inline-flex;flex:none;justify-content:center;align-items:center;
+ min-width:32px;min-height:21px;padding:1px 5px;margin:0;
+ border-radius:12px;font-size:12px;font-weight:700;line-height:1.3;
+}
+.issue-disclosure>summary .qa-severity::before{content:none;}
+.issue-disclosure>summary .qa-severity.S1{background:#8f0b20;color:#fff;}
+.issue-disclosure>summary .qa-severity.S2{background:#dc2937;color:#fff;}
+.issue-disclosure>summary .qa-severity.S3{background:#ffac27;color:#372000;}
+.issue-disclosure>summary .qa-severity.S4{background:#ffea56;color:#302700;}
+
 /* Hide intermediate DOM while async media and the final issue folds are assembled. */
 #captureArea[data-detail-state=loading]>#jobTracker,#captureArea[data-detail-state=loading]>#details,#captureArea[data-detail-state=loading]>#assignments,#captureArea[data-detail-state=loading]>#jobHistory{display:none!important}
 #captureArea[data-detail-state=error]>#jobTracker,#captureArea[data-detail-state=error]>#assignments,#captureArea[data-detail-state=error]>#jobHistory{display:none!important}
@@ -94,4 +107,4 @@
 <p id="detailLoading" class="sheet" role="status">กำลังโหลดรายละเอียด...</p>
 <section id="jobTracker" class="sheet job-tracker compact-record" aria-label="ข้อมูลและสถานะใบงาน"><div class="record-heading"><h2 id="jobTrackerNumber"></h2><span id="catalogReadOnly" class="catalog-read-only" hidden>ดูอย่างเดียว</span><div class="record-route" aria-label="แผนกผู้แจ้งถึงแผนกรับเรื่อง"><b id="recordOrigin"></b><span id="recordRouteArrow" aria-hidden="true">→</span><b id="recordReceivers"></b></div></div><p id="trackerScope" class="tracker-scope" hidden></p><div id="departmentChips" class="department-chips" aria-label="กรองปัญหาและโฟลว์ตามแผนก" hidden></div><div class="tracker-stages record-flow"><span class="track-stage" data-step="OPEN"><span class="track-node" aria-hidden="true">1</span>แจ้งงาน</span><span class="track-stage" data-step="IN_PROGRESS"><span class="track-node" aria-hidden="true">2</span>ดำเนินการ</span><span class="track-stage" data-step="WAITING_REVIEW"><span class="track-node" aria-hidden="true">3</span>รอตรวจรับ</span><span class="track-stage" data-step="CLOSED"><span class="track-node" aria-hidden="true">4</span>สำเร็จ</span></div><div id="details"></div></section>
 <div id="assignments"></div><section id="jobHistory" class="sheet"><h2>ประวัติการดำเนินงาน</h2><div id="historyRows" class="history-rows"></div></section></main>
-<script src="media-viewer.js?v=media-viewer-20261125-r14" defer></script><script src="photo-upload.js?v=mobile-photos-20261125-r12" defer></script><script src="v38-image-editor.js?v=mobile-photos-20261125-r12" defer></script><script src="attachment-picker.js?v=media-viewer-20261125-r14" defer></script><script src="feature-script.js?v=performance-20261125-r15" defer></script><script src="issue-classification.js?v=r16" defer></script><script src="vnext-job.js?v=r16-simple-rework" defer></script><script src="admin-job-trash.js?v=job-buttons-20261110-r1" defer></script></body></html>
+<script src="media-viewer.js?v=media-viewer-20261125-r14" defer></script><script src="photo-upload.js?v=mobile-photos-20261125-r12" defer></script><script src="v38-image-editor.js?v=mobile-photos-20261125-r12" defer></script><script src="attachment-picker.js?v=media-viewer-20261125-r14" defer></script><script src="feature-script.js?v=performance-20261125-r15" defer></script><script src="issue-classification.js?v=r16" defer></script><script src="vnext-job.js?v=r16-dashboard-severity-detail" defer></script><script src="admin-job-trash.js?v=job-buttons-20261110-r1" defer></script></body></html>
